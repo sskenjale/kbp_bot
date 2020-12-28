@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shri | ChatWithKBP</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta
+      name="description"
+      content="Shri is a bot for KBPCOE that answers your basic queries."
+    />
+    <meta name="robots" content="index,follow" />
+    <link
+      rel="icon"
+      href="https://www.kbpcoes.edu.in//uploads/1571979574.png"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <section class="msger">
+      <header class="msger-header">
+        <div class="msger-header-title">
+          Karmaveer Bhaurao Patil College of Engineering, Satara
+        </div>
+      </header>
+
+      <main class="msger-chat">
+        <div class="msg left-msg">
+          <div
+            class="msg-img"
+            style="
+              background-image: url(https://www.kbpcoes.edu.in//uploads/1571979574.png);
+            "
+          ></div>
+
+          <div class="msg-bubble">
+            <div class="msg-info">
+              <div class="msg-info-name">Shri</div>
+              <div class="msg-info-time start-time"></div>
+            </div>
+
+            <div class="msg-text">
+              Welcome! I'm Shri. I can help you find answers to basic queries
+              related to KBPCOES 😊
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <form class="msger-inputarea">
+        <input
+          type="text"
+          class="msger-input"
+          id="textInput"
+          placeholder="Enter your message..."
+          autocomplete="off"
+        />
+        <button type="submit" class="msger-send-btn">Send</button>
+      </form>
+    </section>
+    <!-- partial -->
+    <script src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script>
+    <script>
+      const msgerForm = get(".msger-inputarea");
+      const msgerInput = get(".msger-input");
+      const msgerChat = get(".msger-chat");
+      const startTime = document.querySelector(".start-time");
+      startTime.innerText = `${formatDate(new Date())}`;
+
+      // Icons made by Freepik from www.flaticon.com
+      // const BOT_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
+      const BOT_IMG = "https://www.kbpcoes.edu.in//uploads/1571979574.png";
+      const PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
+      const BOT_NAME = "Shri";
+      const PERSON_NAME = "You";
+
+      msgerForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        var msgText = msgerInput.value;
+        if (!msgText) return;
+
+        appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
+        msgerInput.value = "";
+        // looking for keywords
+        var $commonWords = [
+          "vision",
+          "address",
+          "location",
+          "principal",
+          "courses",
+          "course",
+          "contact",
+          "admission",
+          "fees",
+          "fee",
+          "established",
+          "website",
+          "about",
+          "dbatu",
+          "university",
+          "library",
+          "hostel",
+          "facility",
+          "facilities",
+          "placement",
+          "alumni",
+          "activities",
+          "activity",
+        ];
+        var $text = msgText;
+
+        // Convert to lowercase
+        $text = $text.toLowerCase();
+
+        // replace unnesessary chars. leave only chars, numbers and space
+        $text = $text.replace(/[^\w\d ]/g, "");
+
+        var result = $text.split(" ");
+        // console.log(result);
+        // remove $commonWords
+        result = result.filter(function (word) {
+          return $commonWords.indexOf(word) !== -1 && word !== "";
+        });
+        // console.log(result);
+
+        if (result.length > 0) {
+          msgText = result[0];
+        }
+        // end looking for keywords
+        botResponse(msgText);
+      });
+
+      function appendMessage(name, img, side, text) {
+        //   Simple solution for small apps
+        const msgHTML = `
+<div class="msg ${side}-msg">
+  <div class="msg-img" style="background-image: url(${img})"></div>
+
+  <div class="msg-bubble">
+    <div class="msg-info">
+      <div class="msg-info-name">${name}</div>
+      <div class="msg-info-time">${formatDate(new Date())}</div>
+    </div>
+
+    <div class="msg-text">${text}</div>
+  </div>
+</div>
+`;
+
+        msgerChat.insertAdjacentHTML("beforeend", msgHTML);
+        msgerChat.scrollTop += 500;
+      }
+
+      function botResponse(rawText) {
+        // Bot Response
+        $.get("/get", { msg: rawText }).done(function (data) {
+          console.log(rawText);
+          console.log(data);
+          var msgText = data;
+          if (msgText.includes("The current time is")) {
+            msgText =
+              "I am sorry 😔 I didn't get that 🤔 I am still learning 📚";
+          }
+          appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
+        });
+      }
+
+      // Utils
+      function get(selector, root = document) {
+        return root.querySelector(selector);
+      }
+
+      function formatDate(date) {
+        const h = "0" + date.getHours();
+        const m = "0" + date.getMinutes();
+
+        return `${h.slice(-2)}:${m.slice(-2)}`;
+      }
+    </script>
+  </body>
+</html>
